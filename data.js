@@ -326,173 +326,88 @@ const GROUPS = {
 // ════════════════════════════════════════════════════════════════════
 //  PUBLIC ULTRA-HIGH-NET-WORTH INDIVIDUALS
 // ════════════════════════════════════════════════════════════════════
-// Selected names from the Forbes Real-Time Billionaires List
-// (approximate figures, mid-2024, rounded to nearest $5B for the very top
-// and $1B at the lower end). Used to put concrete names against the
-// "Топ N человек в стране" display when the user's annual income places
-// them near the very top.
+// Verified 2026 figures. Top 50 worldwide is from the Forbes 2026 World's
+// Billionaires List (real-time figures cross-checked May 2026); Russian
+// section verified against The Moscow Times' coverage of the Forbes 2026
+// Russian list (March 2026 publication, real-time updates through May).
+// Anyone whose 2026 figure could not be verified directly was removed.
+//
+// Used to put concrete names against the "Топ N человек в стране"
+// display when the user's annual income places them near the very top.
 //
 // IMPORTANT: net worth ≠ annual income. Forbes tracks total wealth, not
 // salary. This list is presented in the UI with that caveat — public
 // data on individual annual income worldwide simply does not exist.
 //
-// Country code is the person's primary tax/business country (Forbes
-// "Citizenship"). Some prominent figures (e.g. Lakshmi Mittal, Leonard
-// Blavatnik) are tracked under their resident country, not country of
-// birth.
+// Country code is the person's primary tax/business country per Forbes
+// "Citizenship" attribution. Real-time net worth fluctuates daily; values
+// here are snapshot figures from the cited sources.
 const PEOPLE = [
-  // ─── United States ───
-  { nameEn: 'Elon Musk',                    nameRu: 'Илон Маск',                       country: 'USA', netWorth: 220, year: 2024 },
-  { nameEn: 'Jeff Bezos',                   nameRu: 'Джефф Безос',                     country: 'USA', netWorth: 200, year: 2024 },
-  { nameEn: 'Mark Zuckerberg',              nameRu: 'Марк Цукерберг',                  country: 'USA', netWorth: 175, year: 2024 },
-  { nameEn: 'Larry Ellison',                nameRu: 'Ларри Эллисон',                   country: 'USA', netWorth: 165, year: 2024 },
-  { nameEn: 'Warren Buffett',               nameRu: 'Уоррен Баффетт',                  country: 'USA', netWorth: 135, year: 2024 },
-  { nameEn: 'Bill Gates',                   nameRu: 'Билл Гейтс',                      country: 'USA', netWorth: 130, year: 2024 },
-  { nameEn: 'Steve Ballmer',                nameRu: 'Стив Балмер',                     country: 'USA', netWorth: 130, year: 2024 },
-  { nameEn: 'Larry Page',                   nameRu: 'Ларри Пейдж',                     country: 'USA', netWorth: 125, year: 2024 },
-  { nameEn: 'Sergey Brin',                  nameRu: 'Сергей Брин',                     country: 'USA', netWorth: 120, year: 2024 },
-  { nameEn: 'Jensen Huang',                 nameRu: 'Дженсен Хуанг (NVIDIA)',          country: 'USA', netWorth: 110, year: 2024 },
-  { nameEn: 'Michael Bloomberg',            nameRu: 'Майкл Блумберг',                  country: 'USA', netWorth: 105, year: 2024 },
-  { nameEn: 'Michael Dell',                 nameRu: 'Майкл Делл',                      country: 'USA', netWorth: 100, year: 2024 },
-  { nameEn: 'Jim Walton',                   nameRu: 'Джим Уолтон',                     country: 'USA', netWorth: 95,  year: 2024 },
-  { nameEn: 'Rob Walton',                   nameRu: 'Роб Уолтон',                      country: 'USA', netWorth: 95,  year: 2024 },
-  { nameEn: 'Alice Walton',                 nameRu: 'Элис Уолтон',                     country: 'USA', netWorth: 80,  year: 2024 },
-  { nameEn: 'Julia Koch & family',          nameRu: 'Джулия Кох (семья)',              country: 'USA', netWorth: 65,  year: 2024 },
-  { nameEn: 'Charles Koch',                 nameRu: 'Чарльз Кох',                      country: 'USA', netWorth: 60,  year: 2024 },
-  { nameEn: 'Phil Knight & family',         nameRu: 'Фил Найт (Nike)',                 country: 'USA', netWorth: 40,  year: 2024 },
-  { nameEn: 'John Mars',                    nameRu: 'Джон Марс (Mars Inc.)',           country: 'USA', netWorth: 40,  year: 2024 },
-  { nameEn: 'Jacqueline Mars',              nameRu: 'Жаклин Марс (Mars Inc.)',         country: 'USA', netWorth: 40,  year: 2024 },
-  { nameEn: 'Stephen Schwarzman',           nameRu: 'Стивен Шварцман (Blackstone)',    country: 'USA', netWorth: 38,  year: 2024 },
-  { nameEn: 'Ken Griffin',                  nameRu: 'Кен Гриффин (Citadel)',           country: 'USA', netWorth: 37,  year: 2024 },
-  { nameEn: 'Mackenzie Scott',              nameRu: 'Маккензи Скотт',                  country: 'USA', netWorth: 35,  year: 2024 },
-  { nameEn: 'Thomas Frist Jr. & family',    nameRu: 'Томас Фрист (HCA Healthcare)',    country: 'USA', netWorth: 25,  year: 2024 },
-  { nameEn: 'Leonard Lauder',               nameRu: 'Леонард Лаудер',                  country: 'USA', netWorth: 22,  year: 2024 },
-  { nameEn: 'David Tepper',                 nameRu: 'Дэвид Теппер',                    country: 'USA', netWorth: 21,  year: 2024 },
-  { nameEn: 'Stanley Kroenke',              nameRu: 'Стэнли Кронке',                   country: 'USA', netWorth: 16,  year: 2024 },
-  { nameEn: 'Jim Simons',                   nameRu: 'Джим Саймонс (Renaissance)',      country: 'USA', netWorth: 31,  year: 2023 },
+  // ─── Top 50 worldwide (Forbes 2026, real-time May 2026) ─────────
+  { nameEn: 'Elon Musk',                    nameRu: 'Илон Маск (Tesla, SpaceX)',          country: 'USA', netWorth: 790, year: 2026 },
+  { nameEn: 'Larry Page',                   nameRu: 'Ларри Пейдж (Google)',               country: 'USA', netWorth: 314, year: 2026 },
+  { nameEn: 'Sergey Brin',                  nameRu: 'Сергей Брин (Google)',               country: 'USA', netWorth: 290, year: 2026 },
+  { nameEn: 'Jeff Bezos',                   nameRu: 'Джефф Безос (Amazon)',               country: 'USA', netWorth: 275, year: 2026 },
+  { nameEn: 'Larry Ellison',                nameRu: 'Ларри Эллисон (Oracle)',             country: 'USA', netWorth: 217, year: 2026 },
+  { nameEn: 'Mark Zuckerberg',              nameRu: 'Марк Цукерберг (Meta)',              country: 'USA', netWorth: 209, year: 2026 },
+  { nameEn: 'Michael Dell',                 nameRu: 'Майкл Делл (Dell Technologies)',     country: 'USA', netWorth: 178, year: 2026 },
+  { nameEn: 'Jensen Huang',                 nameRu: 'Дженсен Хуанг (NVIDIA)',             country: 'USA', netWorth: 172, year: 2026 },
+  { nameEn: 'Rob Walton',                   nameRu: 'Роб Уолтон (Walmart)',               country: 'USA', netWorth: 149, year: 2026 },
+  { nameEn: 'Jim Walton',                   nameRu: 'Джим Уолтон (Walmart)',              country: 'USA', netWorth: 147, year: 2026 },
+  { nameEn: 'Bernard Arnault & family',     nameRu: 'Бернар Арно (LVMH)',                 country: 'FRA', netWorth: 143, year: 2026 },
+  { nameEn: 'Warren Buffett',               nameRu: 'Уоррен Баффетт (Berkshire Hathaway)',country: 'USA', netWorth: 140, year: 2026 },
+  { nameEn: 'Alice Walton',                 nameRu: 'Элис Уолтон (Walmart)',              country: 'USA', netWorth: 137, year: 2026 },
+  { nameEn: 'Amancio Ortega',               nameRu: 'Амансио Ортега (Inditex / Zara)',    country: 'ESP', netWorth: 134, year: 2026 },
+  { nameEn: 'Steve Ballmer',                nameRu: 'Стив Балмер (Microsoft)',            country: 'USA', netWorth: 132, year: 2026 },
+  { nameEn: 'Carlos Slim Helú & family',    nameRu: 'Карлос Слим (América Móvil)',        country: 'MEX', netWorth: 123, year: 2026 },
+  { nameEn: 'Changpeng Zhao',               nameRu: 'Чанпэн Чжао «CZ» (Binance)',         country: 'ARE', netWorth: 110, year: 2026 },
+  { nameEn: 'Michael Bloomberg',            nameRu: 'Майкл Блумберг (Bloomberg LP)',      country: 'USA', netWorth: 109, year: 2026 },
+  { nameEn: 'Bill Gates',                   nameRu: 'Билл Гейтс (Microsoft)',             country: 'USA', netWorth: 103, year: 2026 },
+  { nameEn: 'Mukesh Ambani',                nameRu: 'Мукеш Амбани (Reliance Industries)', country: 'IND', netWorth: 98,  year: 2026 },
+  { nameEn: 'Françoise Bettencourt Meyers', nameRu: 'Франсуаза Бетанкур Мейерс (LʼOréal)',country: 'FRA', netWorth: 93,  year: 2026 },
+  { nameEn: 'Thomas Peterffy',              nameRu: 'Томас Петерффи (Interactive Brokers)',country: 'USA', netWorth: 93,  year: 2026 },
+  { nameEn: 'Giancarlo Devasini',           nameRu: 'Джанкарло Девазини (Tether, Bitfinex)',country: 'ITA', netWorth: 89, year: 2026 },
+  { nameEn: 'Julia Koch & family',          nameRu: 'Джулия Кох (Koch Industries)',       country: 'USA', netWorth: 81,  year: 2026 },
+  { nameEn: 'Gautam Adani & family',        nameRu: 'Гаутам Адани (Adani Group)',         country: 'IND', netWorth: 78,  year: 2026 },
+  { nameEn: 'Charles Koch',                 nameRu: 'Чарльз Кох (Koch Industries)',       country: 'USA', netWorth: 74,  year: 2026 },
+  { nameEn: 'Zhang Yiming',                 nameRu: 'Чжан Имин (ByteDance / TikTok)',     country: 'CHN', netWorth: 69,  year: 2026 },
+  { nameEn: 'Robin Zeng',                   nameRu: 'Робин Цзэн (CATL)',                  country: 'CHN', netWorth: 68,  year: 2026 },
+  { nameEn: 'Jeff Yass',                    nameRu: 'Джефф Ясс (Susquehanna Intl.)',      country: 'USA', netWorth: 67,  year: 2026 },
+  { nameEn: 'Zhong Shanshan',               nameRu: 'Чжун Шаньшань (Nongfu Spring)',      country: 'CHN', netWorth: 67,  year: 2026 },
+  { nameEn: 'Masayoshi Son',                nameRu: 'Масаёси Сон (SoftBank)',             country: 'JPN', netWorth: 66,  year: 2026 },
+  { nameEn: 'Tadashi Yanai & family',       nameRu: 'Тадаси Янаи (Uniqlo / Fast Retailing)', country: 'JPN', netWorth: 64, year: 2026 },
+  { nameEn: 'Dieter Schwarz',               nameRu: 'Дитер Шварц (Lidl / Kaufland)',      country: 'DEU', netWorth: 60,  year: 2026 },
+  { nameEn: 'Germán Larrea Mota Velasco',   nameRu: 'Херман Ларреа (Grupo México)',       country: 'MEX', netWorth: 59,  year: 2026 },
+  { nameEn: 'Ken Griffin',                  nameRu: 'Кен Гриффин (Citadel)',              country: 'USA', netWorth: 50,  year: 2026 },
+  { nameEn: 'Lukas Walton',                 nameRu: 'Лукас Уолтон (Walmart)',             country: 'USA', netWorth: 50,  year: 2026 },
+  { nameEn: 'Ma Huateng (Pony Ma)',         nameRu: 'Ма Хуатэн (Tencent)',                country: 'CHN', netWorth: 49,  year: 2026 },
+  { nameEn: 'Li Ka-shing',                  nameRu: 'Ли Кашин',                           country: 'HKG', netWorth: 49,  year: 2026 },
+  { nameEn: 'Giovanni Ferrero',             nameRu: 'Джованни Ферреро (Ferrero)',         country: 'ITA', netWorth: 48,  year: 2026 },
+  { nameEn: 'John Mars',                    nameRu: 'Джон Марс (Mars Inc.)',              country: 'USA', netWorth: 47,  year: 2026 },
+  { nameEn: 'Jacqueline Mars',              nameRu: 'Жаклин Марс (Mars Inc.)',            country: 'USA', netWorth: 47,  year: 2026 },
+  { nameEn: 'Iris Fontbona & family',       nameRu: 'Ирис Фонтбона (Antofagasta)',        country: 'CHL', netWorth: 46,  year: 2026 },
+  { nameEn: 'Mark Mateschitz',              nameRu: 'Марк Матешиц (Red Bull)',            country: 'AUT', netWorth: 45,  year: 2026 },
+  { nameEn: 'Rafaela Aponte-Diamant',       nameRu: 'Рафаэла Апонте-Диамант (MSC)',       country: 'CHE', netWorth: 44,  year: 2026 },
+  { nameEn: 'Andrea Pignataro',             nameRu: 'Андреа Пиньятаро (ION Group)',       country: 'ITA', netWorth: 42,  year: 2026 },
+  { nameEn: 'Klaus-Michael Kühne',          nameRu: 'Клаус-Михаэль Кюне (Kühne+Nagel)',   country: 'DEU', netWorth: 40,  year: 2026 },
+  { nameEn: 'Thomas Frist Jr. & family',    nameRu: 'Томас Фрист (HCA Healthcare)',       country: 'USA', netWorth: 40,  year: 2026 },
+  { nameEn: 'Idan Ofer',                    nameRu: 'Идан Офер (Israel Corp.)',           country: 'ISR', netWorth: 40,  year: 2026 },
+  { nameEn: 'Alain Wertheimer',             nameRu: 'Ален Вертхаймер (Chanel)',           country: 'FRA', netWorth: 39,  year: 2026 },
+  { nameEn: 'Gérard Wertheimer',            nameRu: 'Жерар Вертхаймер (Chanel)',          country: 'FRA', netWorth: 39,  year: 2026 },
 
-  // ─── France ───
-  { nameEn: 'Bernard Arnault & family',     nameRu: 'Бернар Арно (LVMH)',              country: 'FRA', netWorth: 220, year: 2024 },
-  { nameEn: 'Françoise Bettencourt Meyers', nameRu: 'Франсуаза Бетанкур Мейерс (LʼOréal)', country: 'FRA', netWorth: 100, year: 2024 },
-  { nameEn: 'Gérard Wertheimer',            nameRu: 'Жерар Вертхаймер (Chanel)',       country: 'FRA', netWorth: 50,  year: 2024 },
-  { nameEn: 'Alain Wertheimer',             nameRu: 'Ален Вертхаймер (Chanel)',        country: 'FRA', netWorth: 50,  year: 2024 },
-  { nameEn: 'François Pinault & family',    nameRu: 'Франсуа Пино (Kering)',           country: 'FRA', netWorth: 38,  year: 2024 },
-  { nameEn: 'Vincent Bolloré',              nameRu: 'Венсан Боллоре',                  country: 'FRA', netWorth: 10,  year: 2024 },
-
-  // ─── Germany ───
-  { nameEn: 'Dieter Schwarz',               nameRu: 'Дитер Шварц (Lidl/Kaufland)',     country: 'DEU', netWorth: 45,  year: 2024 },
-  { nameEn: 'Klaus-Michael Kühne',          nameRu: 'Клаус-Михаэль Кюне',              country: 'DEU', netWorth: 40,  year: 2024 },
-  { nameEn: 'Reinhold Würth',               nameRu: 'Райнхольд Вюрт',                  country: 'DEU', netWorth: 30,  year: 2024 },
-  { nameEn: 'Susanne Klatten',              nameRu: 'Сюзанна Клаттен (BMW)',           country: 'DEU', netWorth: 28,  year: 2024 },
-  { nameEn: 'Stefan Quandt',                nameRu: 'Штефан Квандт (BMW)',             country: 'DEU', netWorth: 25,  year: 2024 },
-  { nameEn: 'Beate Heister & Karl Albrecht Jr.', nameRu: 'Беате Хайстер и Карл Альбрехт-мл. (Aldi Süd)', country: 'DEU', netWorth: 18, year: 2024 },
-  { nameEn: 'Theo Albrecht Jr.',            nameRu: 'Тео Альбрехт-мл. (Aldi Nord)',    country: 'DEU', netWorth: 20,  year: 2024 },
-  { nameEn: 'Andreas Strüngmann',           nameRu: 'Андреас Штрюнгманн (BioNTech)',   country: 'DEU', netWorth: 9,   year: 2024 },
-  { nameEn: 'Thomas Strüngmann',            nameRu: 'Томас Штрюнгманн (BioNTech)',     country: 'DEU', netWorth: 9,   year: 2024 },
-
-  // ─── Russia ───
-  { nameEn: 'Vagit Alekperov',              nameRu: 'Вагит Алекперов (Лукойл)',        country: 'RUS', netWorth: 28,  year: 2024 },
-  { nameEn: 'Vladimir Potanin',             nameRu: 'Владимир Потанин (Норникель)',    country: 'RUS', netWorth: 28,  year: 2024 },
-  { nameEn: 'Leonid Mikhelson',             nameRu: 'Леонид Михельсон (Новатэк)',      country: 'RUS', netWorth: 25,  year: 2024 },
-  { nameEn: 'Vladimir Lisin',               nameRu: 'Владимир Лисин (НЛМК)',           country: 'RUS', netWorth: 25,  year: 2024 },
-  { nameEn: 'Alexey Mordashov & family',    nameRu: 'Алексей Мордашов (Северсталь)',   country: 'RUS', netWorth: 22,  year: 2024 },
-  { nameEn: 'Andrey Melnichenko',           nameRu: 'Андрей Мельниченко (ЕвроХим)',    country: 'RUS', netWorth: 22,  year: 2024 },
-  { nameEn: 'Gennady Timchenko',            nameRu: 'Геннадий Тимченко',               country: 'RUS', netWorth: 22,  year: 2024 },
-  { nameEn: 'Pavel Durov',                  nameRu: 'Павел Дуров (Telegram)',          country: 'RUS', netWorth: 15,  year: 2024 },
-  { nameEn: 'Mikhail Fridman',              nameRu: 'Михаил Фридман',                  country: 'RUS', netWorth: 13,  year: 2024 },
-  { nameEn: 'Alisher Usmanov',              nameRu: 'Алишер Усманов',                  country: 'RUS', netWorth: 13,  year: 2024 },
-  { nameEn: 'Roman Abramovich',             nameRu: 'Роман Абрамович',                 country: 'RUS', netWorth: 9,   year: 2024 },
-  { nameEn: 'Tatyana Bakalchuk',            nameRu: 'Татьяна Бакальчук (Wildberries)', country: 'RUS', netWorth: 6,   year: 2024 },
-
-  // ─── China ───
-  { nameEn: 'Zhong Shanshan',               nameRu: 'Чжун Шаньшань (Nongfu Spring)',   country: 'CHN', netWorth: 60,  year: 2024 },
-  { nameEn: 'Zhang Yiming',                 nameRu: 'Чжан Имин (ByteDance / TikTok)',  country: 'CHN', netWorth: 50,  year: 2024 },
-  { nameEn: 'Ma Huateng (Pony Ma)',         nameRu: 'Ма Хуатэн (Tencent)',             country: 'CHN', netWorth: 45,  year: 2024 },
-  { nameEn: 'Colin Huang',                  nameRu: 'Колин Хуан (Pinduoduo)',          country: 'CHN', netWorth: 45,  year: 2024 },
-  { nameEn: 'Robin Zeng',                   nameRu: 'Робин Цзэн (CATL)',               country: 'CHN', netWorth: 35,  year: 2024 },
-  { nameEn: 'Jack Ma',                      nameRu: 'Джек Ма (Alibaba)',               country: 'CHN', netWorth: 25,  year: 2024 },
-  { nameEn: 'William Ding',                 nameRu: 'Уильям Дин (NetEase)',            country: 'CHN', netWorth: 25,  year: 2024 },
-  { nameEn: 'Wang Wei',                     nameRu: 'Ван Вэй (SF Express)',            country: 'CHN', netWorth: 22,  year: 2024 },
-  { nameEn: 'He Xiangjian',                 nameRu: 'Хэ Сянцзянь (Midea)',             country: 'CHN', netWorth: 22,  year: 2024 },
-  { nameEn: 'Lei Jun',                      nameRu: 'Лэй Цзюнь (Xiaomi)',              country: 'CHN', netWorth: 17,  year: 2024 },
-  { nameEn: 'Liu Yongxing',                 nameRu: 'Лю Юнсин (East Hope)',            country: 'CHN', netWorth: 18,  year: 2024 },
-  { nameEn: 'Robin Li',                     nameRu: 'Робин Ли (Baidu)',                country: 'CHN', netWorth: 11,  year: 2024 },
-
-  // ─── India ───
-  { nameEn: 'Mukesh Ambani',                nameRu: 'Мукеш Амбани (Reliance)',         country: 'IND', netWorth: 110, year: 2024 },
-  { nameEn: 'Gautam Adani & family',        nameRu: 'Гаутам Адани (Adani Group)',      country: 'IND', netWorth: 80,  year: 2024 },
-  { nameEn: 'Shiv Nadar',                   nameRu: 'Шив Надар (HCL)',                 country: 'IND', netWorth: 36,  year: 2024 },
-  { nameEn: 'Savitri Jindal & family',      nameRu: 'Савитри Джиндал (Jindal Group)',  country: 'IND', netWorth: 35,  year: 2024 },
-  { nameEn: 'Radhakishan Damani',           nameRu: 'Радхакишан Дамани (DMart)',       country: 'IND', netWorth: 25,  year: 2024 },
-  { nameEn: 'Cyrus Poonawalla',             nameRu: 'Сайрус Пунавалла (Serum Inst.)',  country: 'IND', netWorth: 22,  year: 2024 },
-  { nameEn: 'Dilip Shanghvi',               nameRu: 'Дилип Шангви (Sun Pharma)',       country: 'IND', netWorth: 20,  year: 2024 },
-  { nameEn: 'Kumar Birla',                  nameRu: 'Кумар Бирла (Aditya Birla Group)',country: 'IND', netWorth: 18,  year: 2024 },
-
-  // ─── Mexico, Latin America ───
-  { nameEn: 'Carlos Slim Helú & family',    nameRu: 'Карлос Слим (América Móvil)',     country: 'MEX', netWorth: 100, year: 2024 },
-  { nameEn: 'Germán Larrea Mota Velasco',   nameRu: 'Херман Ларреа (Grupo México)',    country: 'MEX', netWorth: 30,  year: 2024 },
-  { nameEn: 'Ricardo Salinas Pliego',       nameRu: 'Рикардо Салинас Плиего',          country: 'MEX', netWorth: 12,  year: 2024 },
-  { nameEn: 'Eduardo Saverin',              nameRu: 'Эдуардо Саверин (Facebook)',      country: 'BRA', netWorth: 30,  year: 2024 },
-  { nameEn: 'Jorge Paulo Lemann',           nameRu: 'Жоржи Паулу Леманн',              country: 'BRA', netWorth: 20,  year: 2024 },
-  { nameEn: 'Joseph Safra family',          nameRu: 'Семья Сафра (Safra Group)',       country: 'BRA', netWorth: 20,  year: 2024 },
-  { nameEn: 'Iris Fontbona & family',       nameRu: 'Ирис Фонтбона (Antofagasta)',     country: 'CHL', netWorth: 22,  year: 2024 },
-
-  // ─── Italy ───
-  { nameEn: 'Giovanni Ferrero',             nameRu: 'Джованни Ферреро (Ferrero)',      country: 'ITA', netWorth: 45,  year: 2024 },
-  { nameEn: 'Del Vecchio family',           nameRu: 'Семья Дель Веккио (EssilorLuxottica)', country: 'ITA', netWorth: 30, year: 2024 },
-  { nameEn: 'Giorgio Armani',               nameRu: 'Джорджо Армани',                  country: 'ITA', netWorth: 11,  year: 2024 },
-  { nameEn: 'Berlusconi family',            nameRu: 'Семья Берлускони',                country: 'ITA', netWorth: 8,   year: 2024 },
-
-  // ─── Spain ───
-  { nameEn: 'Amancio Ortega',               nameRu: 'Амансио Ортега (Inditex / Zara)', country: 'ESP', netWorth: 110, year: 2024 },
-  { nameEn: 'Sandra Ortega Mera',           nameRu: 'Сандра Ортега Мера',              country: 'ESP', netWorth: 9,   year: 2024 },
-  { nameEn: 'Juan Roig',                    nameRu: 'Хуан Ройг (Mercadona)',           country: 'ESP', netWorth: 5,   year: 2024 },
-
-  // ─── United Kingdom ───
-  { nameEn: 'Leonard Blavatnik',            nameRu: 'Леонард Блаватник',               country: 'GBR', netWorth: 30,  year: 2024 },
-  { nameEn: 'David & Simon Reuben',         nameRu: 'Дэвид и Саймон Рюбен',            country: 'GBR', netWorth: 26,  year: 2024 },
-  { nameEn: 'Hinduja brothers',             nameRu: 'Братья Хиндуджа',                 country: 'GBR', netWorth: 20,  year: 2024 },
-  { nameEn: 'Lakshmi Mittal & family',      nameRu: 'Лакшми Миттал (ArcelorMittal)',   country: 'GBR', netWorth: 16,  year: 2024 },
-  { nameEn: 'James Dyson',                  nameRu: 'Джеймс Дайсон',                   country: 'GBR', netWorth: 13,  year: 2024 },
-
-  // ─── Switzerland, Netherlands, Sweden ───
-  { nameEn: 'Ernesto Bertarelli & family',  nameRu: 'Эрнесто Бертарелли',              country: 'CHE', netWorth: 11,  year: 2024 },
-  { nameEn: 'Gianluigi Aponte & family',    nameRu: 'Джанлуиджи Апонте (MSC)',         country: 'CHE', netWorth: 31,  year: 2024 },
-  { nameEn: 'Stefan Persson',               nameRu: 'Стефан Перссон (H&M)',            country: 'SWE', netWorth: 22,  year: 2024 },
-  { nameEn: 'Charlene de Carvalho-Heineken',nameRu: 'Шарлин де Карвальо-Хайнекен',     country: 'NLD', netWorth: 18,  year: 2024 },
-
-  // ─── Asia (Japan, Korea, HK, Singapore, Taiwan) ───
-  { nameEn: 'Tadashi Yanai & family',       nameRu: 'Тадаси Янаи (Uniqlo)',            country: 'JPN', netWorth: 45,  year: 2024 },
-  { nameEn: 'Takemitsu Takizaki',           nameRu: 'Такэмицу Такидзаки (Keyence)',    country: 'JPN', netWorth: 24,  year: 2024 },
-  { nameEn: 'Masayoshi Son',                nameRu: 'Масаёси Сон (SoftBank)',          country: 'JPN', netWorth: 25,  year: 2024 },
-  { nameEn: 'Jay Y. Lee',                   nameRu: 'Ли Чжэён (Samsung)',              country: 'KOR', netWorth: 9,   year: 2024 },
-  { nameEn: 'Li Ka-shing',                  nameRu: 'Ли Кашин',                        country: 'HKG', netWorth: 38,  year: 2024 },
-  { nameEn: 'Lee Shau Kee',                 nameRu: 'Ли Шаукей',                       country: 'HKG', netWorth: 28,  year: 2024 },
-  { nameEn: 'Robert & Philip Ng',           nameRu: 'Роберт и Филип Ынь (Far East)',   country: 'SGP', netWorth: 14,  year: 2024 },
-  { nameEn: 'Goh Cheng Liang',              nameRu: 'Го Чэнлян (Nippon Paint)',        country: 'SGP', netWorth: 11,  year: 2024 },
-  { nameEn: 'Terry Gou',                    nameRu: 'Терри Гоу (Foxconn)',             country: 'TWN', netWorth: 12,  year: 2024 },
-
-  // ─── Middle East ───
-  { nameEn: 'Prince Alwaleed bin Talal',    nameRu: 'Принц Аль-Валид ибн Талал',       country: 'SAU', netWorth: 16,  year: 2024 },
-  { nameEn: 'Mohammed Al Amoudi',           nameRu: 'Мохаммед Аль-Амуди',              country: 'SAU', netWorth: 9,   year: 2024 },
-  { nameEn: 'Hussain Sajwani',              nameRu: 'Хусейн Саджвани (DAMAC)',         country: 'ARE', netWorth: 6,   year: 2024 },
-  { nameEn: 'Eyal Ofer',                    nameRu: 'Эйаль Офер',                      country: 'ISR', netWorth: 16,  year: 2024 },
-  { nameEn: 'Idan Ofer',                    nameRu: 'Идан Офер',                       country: 'ISR', netWorth: 15,  year: 2024 },
-
-  // ─── Australia, Canada ───
-  { nameEn: 'Gina Rinehart',                nameRu: 'Джина Райнхарт',                  country: 'AUS', netWorth: 30,  year: 2024 },
-  { nameEn: 'Andrew Forrest',               nameRu: 'Эндрю Форрест (Fortescue)',       country: 'AUS', netWorth: 20,  year: 2024 },
-  { nameEn: 'Anthony Pratt & family',       nameRu: 'Энтони Пратт (Visy)',             country: 'AUS', netWorth: 15,  year: 2024 },
-  { nameEn: 'David Thomson & family',       nameRu: 'Дэвид Томсон (Thomson Reuters)',  country: 'CAN', netWorth: 70,  year: 2024 },
-  { nameEn: 'Joseph Tsai',                  nameRu: 'Джозеф Цай (Alibaba)',            country: 'CAN', netWorth: 13,  year: 2024 },
-
-  // ─── Indonesia, Thailand, Vietnam ───
-  { nameEn: 'R. Budi Hartono',              nameRu: 'Р. Буди Хартоно (Djarum / BCA)',  country: 'IDN', netWorth: 27,  year: 2024 },
-  { nameEn: 'Michael Hartono',              nameRu: 'Майкл Хартоно',                   country: 'IDN', netWorth: 25,  year: 2024 },
-  { nameEn: 'Charoen Sirivadhanabhakdi',    nameRu: 'Чароен Сириваттанапхакди (TCC)',  country: 'THA', netWorth: 13,  year: 2024 },
-  { nameEn: 'Yoovidhya family',             nameRu: 'Семья Йювитья (Red Bull TH)',     country: 'THA', netWorth: 25,  year: 2024 },
-  { nameEn: 'Pham Nhat Vuong',              nameRu: 'Фам Нят Выонг (Vingroup)',        country: 'VNM', netWorth: 8,   year: 2024 },
+  // ─── Russia (Forbes 2026, March 2026 release + May 2026 update) ─
+  { nameEn: 'Alexei Mordashov & family',    nameRu: 'Алексей Мордашов (Северсталь)',      country: 'RUS', netWorth: 39,  year: 2026 },
+  { nameEn: 'Vladimir Potanin',             nameRu: 'Владимир Потанин (Норникель)',       country: 'RUS', netWorth: 30,  year: 2026 },
+  { nameEn: 'Vagit Alekperov',              nameRu: 'Вагит Алекперов (Лукойл)',           country: 'RUS', netWorth: 29,  year: 2026 },
+  { nameEn: 'Leonid Mikhelson & family',    nameRu: 'Леонид Михельсон (Новатэк)',         country: 'RUS', netWorth: 28,  year: 2026 },
+  { nameEn: 'Vladimir Lisin',               nameRu: 'Владимир Лисин (НЛМК)',              country: 'RUS', netWorth: 26,  year: 2026 },
+  { nameEn: 'Gennady Timchenko',            nameRu: 'Геннадий Тимченко (Volga Group)',    country: 'RUS', netWorth: 24,  year: 2026 },
+  { nameEn: 'Andrey Melnichenko & family',  nameRu: 'Андрей Мельниченко (СУЭК / ЕвроХим)',country: 'RUS', netWorth: 20,  year: 2026 },
+  { nameEn: 'Alisher Usmanov',              nameRu: 'Алишер Усманов (USM Holdings)',      country: 'RUS', netWorth: 19,  year: 2026 },
+  { nameEn: 'Mikhail Prokhorov',            nameRu: 'Михаил Прохоров (Onexim)',           country: 'RUS', netWorth: 17,  year: 2026 },
+  { nameEn: 'Roman Abramovich',             nameRu: 'Роман Абрамович',                    country: 'RUS', netWorth: 8,   year: 2026 },
+  { nameEn: 'Pavel Durov',                  nameRu: 'Павел Дуров (Telegram)',             country: 'ARE', netWorth: 7,   year: 2026 },
 ];
 
-const PEOPLE_SOURCE_URL = 'https://www.forbes.com/real-time-billionaires/';
-const PEOPLE_SOURCE_LABEL = 'Forbes Real-Time Billionaires (2024)';
+const PEOPLE_SOURCE_URL = 'https://www.forbes.com/billionaires/';
+const PEOPLE_SOURCE_LABEL = 'Forbes 2026 World\'s Billionaires (real-time)';
