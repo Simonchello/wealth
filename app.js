@@ -654,6 +654,53 @@ function renderResults() {
     }
     card.appendChild(thresholds);
 
+    // ── Named billionaires above the user ──
+    // Only when in absolute-rank mode (very high earner). Compares
+    // person's NET WORTH (Forbes) vs. user's annualized salary — clearly
+    // labelled in the UI as "общий капитал, не годовой доход".
+    if (useAbsolute) {
+      const memberCodes = entity.type === 'country' ? [entity.code] : entity.members;
+      const memberSet = new Set(memberCodes);
+      const above = PEOPLE
+        .filter(p => memberSet.has(p.country) && p.netWorth * 1e9 > x)
+        .sort((a, b) => b.netWorth - a.netWorth);
+      if (above.length > 0) {
+        const peopleEl = document.createElement('div');
+        peopleEl.className = 'people-list';
+        const head = document.createElement('div');
+        head.className = 'people-header';
+        head.innerHTML = `Кто богаче — по <a href="${PEOPLE_SOURCE_URL}" target="_blank" rel="noopener">Forbes</a> <em>сравнивается общий капитал, а не годовой доход — публичных данных по личной годовой зарплате конкретных людей по миру не существует</em>`;
+        peopleEl.appendChild(head);
+        const list = document.createElement('ol');
+        list.className = 'people-items';
+        const limit = Math.min(above.length, 10);
+        for (let i = 0; i < limit; i++) {
+          const p = above[i];
+          const li = document.createElement('li');
+          const left = document.createElement('span');
+          left.className = 'p-name';
+          left.textContent = p.nameRu || p.nameEn;
+          const place = document.createElement('span');
+          place.className = 'p-place';
+          place.textContent = COUNTRIES[p.country] ? COUNTRIES[p.country].name : p.country;
+          left.appendChild(place);
+          const right = document.createElement('span');
+          right.className = 'p-nw';
+          right.textContent = '$' + p.netWorth + ' млрд';
+          li.append(left, right);
+          list.appendChild(li);
+        }
+        peopleEl.appendChild(list);
+        if (above.length > limit) {
+          const more = document.createElement('div');
+          more.className = 'people-more';
+          more.textContent = `+ ещё ${above.length - limit} известных по Forbes`;
+          peopleEl.appendChild(more);
+        }
+        card.appendChild(peopleEl);
+      }
+    }
+
     const sourceEl = document.createElement('div');
     sourceEl.className = 'source-line';
     if (entity.type === 'country') {

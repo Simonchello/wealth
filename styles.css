@@ -529,6 +529,91 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 
+.people-list {
+  margin: 0 0 14px;
+  padding: 14px 16px 12px;
+  background: rgba(224,182,89,0.04);
+  border: 1px solid rgba(224,182,89,0.18);
+  border-radius: 8px;
+}
+.people-header {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.people-header em {
+  display: block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-style: italic;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.people-header a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent-dim);
+}
+.people-header a:hover { border-bottom-style: solid; }
+.people-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+  counter-reset: pli;
+}
+.people-items li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  counter-increment: pli;
+}
+.people-items li::before {
+  content: counter(pli);
+  display: inline-block;
+  min-width: 22px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.people-items li:last-child { border-bottom: none; }
+.people-items .p-name {
+  flex: 1;
+  color: var(--text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.people-items .p-place {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.people-items .p-nw {
+  color: var(--accent);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.people-more {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-style: italic;
+  text-align: center;
+}
+
 .source-line {
   display: flex;
   justify-content: space-between;
