@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Где вы стоите? — Перцентиль вашего дохода в мире</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Income percentile calculator</p>
+      <h1>Где вы стоите <em>в мире</em>?</h1>
+      <p class="subtitle">Введите свой доход и узнайте, в какой топ-процент вы попадаете в любой стране, союзе или регионе. Все суммы в долларах США.</p>
+    </header>
+
+    <section>
+      <h2>1. Ваш доход</h2>
+      <div class="salary-card">
+        <span class="label">Я зарабатываю</span>
+        <div class="salary-input-wrap">
+          <span class="dollar">$</span>
+          <input
+            type="text"
+            id="salary"
+            placeholder="50 000"
+            inputmode="decimal"
+            autocomplete="off"
+            value="50000">
+        </div>
+        <select id="period" aria-label="Период">
+          <option value="year" selected>в год</option>
+          <option value="month">в месяц</option>
+          <option value="week">в неделю</option>
+          <option value="day">в день</option>
+          <option value="hour">в час</option>
+        </select>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. С чем сравнить</h2>
+
+      <div class="search-wrap">
+        <input
+          type="text"
+          id="search"
+          placeholder="Найдите страну или союз..."
+          autocomplete="off">
+        <ul id="search-results"></ul>
+      </div>
+
+      <div class="groups" id="groups"></div>
+
+      <div class="map-wrap">
+        <div class="map-loading" id="map-loading">Загрузка карты мира…</div>
+        <svg id="world-map" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="map-tooltip" id="map-tooltip"></div>
+        <div class="map-help">
+          <span>Кликните по стране на карте, чтобы добавить её в сравнение</span>
+          <div class="map-legend">
+            <span class="legend-swatch normal">обычная</span>
+            <span class="legend-swatch group">в группе</span>
+            <span class="legend-swatch selected">выбрана</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="selected-wrap" id="selected">
+        <span class="selected-empty">Ничего не выбрано — добавьте страну или союз выше</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Ваш перцентиль</h2>
+      <div class="results-grid" id="results">
+        <div class="empty-state">
+          <h3>Введите доход и выберите страны</h3>
+          <p>Результат появится здесь</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <details>
+        <summary>Методология и источники</summary>
+        <p>
+          <strong>Источники данных:</strong>
+          <a href="https://wid.world/" target="_blank" rel="noopener">World Inequality Database (WID.world)</a> — пороги перцентилей дохода для крупнейших экономик;
+          <a href="https://data.worldbank.org/" target="_blank" rel="noopener">World Bank Open Data</a> — средний доход (GDP per capita) и коэффициент Джини;
+          <a href="https://www.oecd.org/en/data.html" target="_blank" rel="noopener">OECD Income Distribution Database</a> — для стран ОЭСР.
+        </p>
+        <p>
+          <strong>Методология.</strong> Где доступны прямые данные WID — используется кусочно-логлинейная интерполяция между порогами P10/P25/P50/P75/P90/P95/P99.
+          Для остальных стран распределение дохода аппроксимируется логнормальной моделью с параметрами,
+          выведенными из среднего дохода и коэффициента Джини (стандартный подход в экономике неравенства).
+          Для союзов и регионов распределения отдельных стран взвешиваются по численности взрослого населения.
+        </p>
+        <p>
+          <strong>Метки источников</strong> на каждом результате:
+          «WID.world» / «World Bank» — реальные опубликованные данные;
+          «log-normal model» — логнормальная аппроксимация на основе Джини;
+          «AI predicted» — данных нет в открытом доступе, оценка приближённая.
+        </p>
+        <p>
+          Все цифры приведены к годовому доходу в долларах США (номинальные, не PPP), последний доступный год (как правило, 2021–2023).
+          Это упрощённая модель — она не учитывает региональные различия внутри стран, налоги, стоимость жизни и теневую экономику.
+        </p>
+      </details>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
