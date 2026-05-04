@@ -265,7 +265,6 @@ function parseSalary(s) {
 }
 
 const usdFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-const numFmt = new Intl.NumberFormat('en-US');
 
 function fmtUSDCompact(n) {
   if (n >= 1e6) return '$' + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M';
@@ -274,8 +273,8 @@ function fmtUSDCompact(n) {
   return '$' + Math.round(n);
 }
 
-function fmtThousands(n) {
-  return ' ' + numFmt.format(Math.round(n)).replace(/,/g, ' ');
+function fmtSalary(n) {
+  return localeNumFmt().format(Math.round(n));
 }
 
 function fmtPercentage(p) {
@@ -299,20 +298,27 @@ function fmtPctTiny(p) {
   return p.toExponential(1).replace('e-', '·10⁻');
 }
 
-const ruNumFmt = new Intl.NumberFormat('ru-RU');
-
-// People count formatted in Russian
+// People count, locale-aware
 function fmtPeople(n) {
   n = Math.max(0, Math.round(n));
-  if (n < 1e4) return ruNumFmt.format(n);
-  if (n < 1e6) return ruNumFmt.format(n);
+  const fmt = localeNumFmt();
+  if (n < 1e6) return fmt.format(n);
   if (n < 1e9) {
     const m = n / 1e6;
-    if (m < 10) return m.toFixed(1).replace('.', ',') + ' млн';
-    if (m < 100) return Math.round(m) + ' млн';
-    return Math.round(m) + ' млн';
+    const s = m < 10 ? m.toFixed(1) : String(Math.round(m));
+    return LANG === 'ru'
+      ? s.replace('.', ',') + ' млн'
+      : s + 'M';
   }
-  return (n / 1e9).toFixed(1).replace('.', ',') + ' млрд';
+  const b = (n / 1e9).toFixed(1);
+  return LANG === 'ru'
+    ? b.replace('.', ',') + ' млрд'
+    : b + 'B';
+}
+
+// "$X B" / "$X млрд" for Forbes net worth display
+function fmtBillions(b) {
+  return '$' + b + (LANG === 'ru' ? ' млрд' : 'B');
 }
 
 // ─── entity resolution ─────────────────────────────────────────
@@ -322,13 +328,13 @@ function resolveEntity(id) {
     const code = id.slice(2);
     const c = COUNTRIES[code];
     if (!c) return null;
-    return { id, type: 'country', code, name: c.name, country: c };
+    return { id, type: 'country', code, get name() { return nameFor(c); }, country: c };
   }
   if (id.startsWith('g:')) {
     const key = id.slice(2);
     const g = GROUPS[key];
     if (!g) return null;
-    return { id, type: 'group', key, name: g.name, group: g, members: expandGroupMembers(g) };
+    return { id, type: 'group', key, get name() { return nameFor(g); }, group: g, members: expandGroupMembers(g) };
   }
   return null;
 }
@@ -356,14 +362,14 @@ function renderGroups() {
   const span = document.createElement('span');
   span.className = 'label';
   span.style.cssText = 'font-size:13px;color:var(--text-dim);margin-right:4px;align-self:center;';
-  span.textContent = 'Быстрые группы:';
+  span.textContent = t('quickGroups');
   els.groups.appendChild(span);
   for (const [key, g] of Object.entries(GROUPS)) {
     const btn = document.createElement('button');
     btn.className = 'group-chip';
     btn.dataset.id = 'g:' + key;
-    btn.textContent = g.name;
-    btn.title = g.description;
+    btn.textContent = nameFor(g);
+    btn.title = descFor(g);
     if (state.selected.includes('g:' + key)) btn.classList.add('active');
     btn.addEventListener('click', () => toggleSelected('g:' + key));
     els.groups.appendChild(btn);
@@ -379,8 +385,7 @@ function buildSearchIndex() {
     items.push({
       id: 'c:' + code,
       kind: 'country',
-      name: c.name,
-      nameEn: c.nameEn,
+      ref: c,
       keywords: [c.name, c.nameEn, code].join(' ').toLowerCase(),
       meta: c.predicted ? 'AI predicted' : (c.modeled ? 'log-normal' : 'WID/WB'),
     });
@@ -389,10 +394,9 @@ function buildSearchIndex() {
     items.push({
       id: 'g:' + key,
       kind: 'group',
-      name: g.name,
-      nameEn: g.nameEn,
+      ref: g,
       keywords: [g.name, g.nameEn, key].join(' ').toLowerCase(),
-      meta: 'Союз/регион',
+      metaKey: 'metaUnion',
     });
   }
   return items;
@@ -409,9 +413,9 @@ function filterSearch(q) {
     const k = item.keywords;
     let score = 0;
     let allMatch = true;
-    for (const t of tokens) {
-      if (!k.includes(t)) { allMatch = false; break; }
-      if (k.startsWith(t)) score += 10;
+    for (const tok of tokens) {
+      if (!k.includes(tok)) { allMatch = false; break; }
+      if (k.startsWith(tok)) score += 10;
       else score += 1;
     }
     if (allMatch) {
@@ -432,7 +436,7 @@ function renderSearchResults(items) {
   if (items.length === 0) {
     const li = document.createElement('li');
     li.className = 'empty';
-    li.textContent = 'Ничего не найдено';
+    li.textContent = t('nothingFound');
     els.searchResults.appendChild(li);
     els.searchResults.classList.add('open');
     return;
@@ -440,10 +444,12 @@ function renderSearchResults(items) {
   for (const item of items) {
     const li = document.createElement('li');
     const left = document.createElement('span');
-    left.textContent = item.name + (item.nameEn && item.nameEn !== item.name ? ` · ${item.nameEn}` : '');
+    const primary = nameFor(item.ref);
+    const secondary = LANG === 'ru' ? item.ref.nameEn : item.ref.name;
+    left.textContent = primary + (secondary && secondary !== primary ? ` · ${secondary}` : '');
     const right = document.createElement('span');
     right.className = 'meta';
-    right.textContent = item.meta;
+    right.textContent = item.metaKey ? t(item.metaKey) : item.meta;
     if (state.selected.includes(item.id)) {
       left.textContent = '✓ ' + left.textContent;
       li.style.opacity = '0.5';
@@ -479,7 +485,7 @@ function renderSelected() {
   if (state.selected.length === 0) {
     const empty = document.createElement('span');
     empty.className = 'selected-empty';
-    empty.textContent = 'Ничего не выбрано — кликните по стране на карте, добавьте союз кнопкой выше или найдите через поиск';
+    empty.textContent = t('selectedEmpty');
     els.selected.appendChild(empty);
     return;
   }
@@ -492,7 +498,7 @@ function renderSelected() {
     const close = document.createElement('button');
     close.className = 'close';
     close.textContent = '×';
-    close.title = 'Убрать';
+    close.title = t('chipRemove');
     close.addEventListener('click', () => toggleSelected(id));
     chip.appendChild(close);
     els.selected.appendChild(chip);
@@ -500,7 +506,7 @@ function renderSelected() {
   if (state.selected.length > 1) {
     const clear = document.createElement('button');
     clear.className = 'chip-clear';
-    clear.textContent = 'очистить всё';
+    clear.textContent = t('clearAll');
     clear.addEventListener('click', clearSelected);
     els.selected.appendChild(clear);
   }
@@ -530,10 +536,13 @@ function groupSourceSummary(members) {
   }
   const total = counts.direct + counts.modeled + counts.predicted;
   const parts = [];
-  if (counts.direct) parts.push(`${counts.direct} direct (WID/WB)`);
-  if (counts.modeled) parts.push(`${counts.modeled} log-normal`);
-  if (counts.predicted) parts.push(`${counts.predicted} AI predicted`);
-  return { label: `${total} стран · ${parts.join(', ')}`, tag: counts.predicted > 0 ? 'predicted' : (counts.modeled > total / 2 ? 'modeled' : 'direct') };
+  if (counts.direct)    parts.push(t('groupSrcDirect',    { n: counts.direct }));
+  if (counts.modeled)   parts.push(t('groupSrcModeled',   { n: counts.modeled }));
+  if (counts.predicted) parts.push(t('groupSrcPredicted', { n: counts.predicted }));
+  return {
+    label: t('groupSrcCountries', { n: total, parts: parts.join(', ') }),
+    tag: counts.predicted > 0 ? 'predicted' : (counts.modeled > total / 2 ? 'modeled' : 'direct'),
+  };
 }
 
 function renderResults() {
@@ -543,10 +552,11 @@ function renderResults() {
   if (state.selected.length === 0 || x <= 0) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.innerHTML = `
-      <h3>${x <= 0 ? 'Введите ваш доход' : 'Выберите страну или группу'}</h3>
-      <p>${x <= 0 ? 'Сумма в долларах за выбранный период' : 'Используйте карту, поиск или быстрые группы'}</p>
-    `;
+    const h3 = document.createElement('h3');
+    h3.textContent = x <= 0 ? t('emptyEnter') : t('emptyPick');
+    const p = document.createElement('p');
+    p.textContent = x <= 0 ? t('emptyEnterSub') : t('emptyPickSub');
+    empty.append(h3, p);
     els.results.appendChild(empty);
     return;
   }
@@ -572,8 +582,7 @@ function renderResults() {
     nameEl.className = 'result-name';
     nameEl.textContent = entity.name;
     if (entity.type === 'group') {
-      const memberCount = entity.members.length;
-      nameEl.textContent += ` · ${memberCount} стран`;
+      nameEl.textContent += ` · ${t('countriesCount', { n: entity.members.length })}`;
     }
     header.appendChild(nameEl);
 
@@ -581,12 +590,12 @@ function renderResults() {
     tag.className = 'result-tag';
     if (entity.type === 'country' && entity.country.predicted) {
       tag.className += ' predicted';
-      tag.textContent = 'AI predicted';
+      tag.textContent = t('tagAiPredicted');
     } else if (id === featuredId) {
       tag.className += ' featured-tag';
-      tag.textContent = 'основная';
+      tag.textContent = t('tagMain');
     } else {
-      tag.textContent = entity.type === 'country' ? 'страна' : 'группа';
+      tag.textContent = entity.type === 'country' ? t('tagCountry') : t('tagGroup');
     }
     header.appendChild(tag);
     card.appendChild(header);
@@ -601,13 +610,13 @@ function renderResults() {
     if (useAbsolute) {
       const rank = Math.max(1, Math.round(numAbove) + 1);
       row.innerHTML = `
-        <span class="top-label">Топ</span>
+        <span class="top-label">${t('top')}</span>
         <span class="top-value">${fmtPeople(rank)}</span>
-        <span class="top-suffix">из ${fmtPeople(total)}</span>
+        <span class="top-suffix">${t('outOf', { n: fmtPeople(total) })}</span>
       `;
     } else {
       row.innerHTML = `
-        <span class="top-label">${isTop ? 'Top' : 'Bottom'}</span>
+        <span class="top-label">${isTop ? t('top') : t('bottom')}</span>
         <span class="top-value${isTop ? '' : ' bottom'}">${fmtPercentage(isTop ? top : percentile)}<span class="top-suffix">%</span></span>
       `;
     }
@@ -617,18 +626,19 @@ function renderResults() {
     sub.className = 'subtext';
     if (useAbsolute) {
       const aboveCount = Math.max(0, Math.round(numAbove));
-      const where = entity.type === 'country' ? 'в стране' : 'в этой группе';
+      const where = entity.type === 'country' ? t('inCountry') : t('inGroup');
+      const pStr = fmtPctTiny(top);
       if (aboveCount === 0) {
-        sub.innerHTML = `Никто ${where} не зарабатывает больше · топ <strong>${fmtPctTiny(top)}%</strong>`;
+        sub.innerHTML = t('nooneAbove', { where, p: pStr });
       } else if (aboveCount === 1) {
-        sub.innerHTML = `Вас обгоняет всего <strong>1 человек</strong> ${where} · топ <strong>${fmtPctTiny(top)}%</strong>`;
+        sub.innerHTML = t('onlyOneAbove', { where, p: pStr });
       } else {
-        sub.innerHTML = `Вас обгоняют только <strong>${fmtPeople(aboveCount)}</strong> взрослых ${where} · топ <strong>${fmtPctTiny(top)}%</strong>`;
+        sub.innerHTML = t('fewAbove', { n: fmtPeople(aboveCount), where, p: pStr });
       }
     } else if (isTop) {
-      sub.innerHTML = `Вы зарабатываете больше <strong>${fmtPercentage(percentile)}%</strong> взрослого населения`;
+      sub.innerHTML = t('earnMore', { p: fmtPercentage(percentile) });
     } else {
-      sub.innerHTML = `Вы зарабатываете больше только <strong>${fmtPercentage(percentile)}%</strong> взрослого населения`;
+      sub.innerHTML = t('earnMoreOnly', { p: fmtPercentage(percentile) });
     }
     card.appendChild(sub);
 
@@ -640,10 +650,10 @@ function renderResults() {
     const thresholds = document.createElement('div');
     thresholds.className = 'thresholds';
     const cuts = [
-      { p: 0.50, label: 'медиана' },
-      { p: 0.90, label: 'top 10%' },
-      { p: 0.99, label: 'top 1%' },
-      { p: 0.999, label: 'top 0.1%' },
+      { p: 0.50,  label: t('threshMedian') },
+      { p: 0.90,  label: t('thresh10') },
+      { p: 0.99,  label: t('thresh1') },
+      { p: 0.999, label: t('thresh01') },
     ];
     for (const { p, label } of cuts) {
       const v = quantileEntity(entity, p);
@@ -669,7 +679,9 @@ function renderResults() {
         peopleEl.className = 'people-list';
         const head = document.createElement('div');
         head.className = 'people-header';
-        head.innerHTML = `Кто богаче — по <a href="${PEOPLE_SOURCE_URL}" target="_blank" rel="noopener">Forbes</a> <em>сравнивается общий капитал, а не годовой доход — публичных данных по личной годовой зарплате конкретных людей по миру не существует</em>`;
+        head.innerHTML =
+          t('peopleHeader', { url: PEOPLE_SOURCE_URL }) +
+          ' <em>' + t('peopleCaveat') + '</em>';
         peopleEl.appendChild(head);
         const list = document.createElement('ol');
         list.className = 'people-items';
@@ -679,14 +691,14 @@ function renderResults() {
           const li = document.createElement('li');
           const left = document.createElement('span');
           left.className = 'p-name';
-          left.textContent = p.nameRu || p.nameEn;
+          left.textContent = nameForPerson(p);
           const place = document.createElement('span');
           place.className = 'p-place';
-          place.textContent = COUNTRIES[p.country] ? COUNTRIES[p.country].name : p.country;
+          place.textContent = COUNTRIES[p.country] ? nameFor(COUNTRIES[p.country]) : p.country;
           left.appendChild(place);
           const right = document.createElement('span');
           right.className = 'p-nw';
-          right.textContent = '$' + p.netWorth + ' млрд';
+          right.textContent = fmtBillions(p.netWorth);
           li.append(left, right);
           list.appendChild(li);
         }
@@ -694,7 +706,7 @@ function renderResults() {
         if (above.length > limit) {
           const more = document.createElement('div');
           more.className = 'people-more';
-          more.textContent = `+ ещё ${above.length - limit} известных по Forbes`;
+          more.textContent = t('peopleMore', { n: above.length - limit });
           peopleEl.appendChild(more);
         }
         card.appendChild(peopleEl);
@@ -706,7 +718,7 @@ function renderResults() {
     if (entity.type === 'country') {
       const s = sourceLine(entity.country);
       const left = document.createElement('span');
-      left.textContent = 'Источник:';
+      left.textContent = t('source');
       const right = document.createElement('span');
       if (s.url) {
         const a = document.createElement('a');
@@ -722,7 +734,7 @@ function renderResults() {
     } else {
       const s = groupSourceSummary(entity.members);
       const left = document.createElement('span');
-      left.textContent = 'Источник:';
+      left.textContent = t('source');
       const right = document.createElement('span');
       right.textContent = s.label;
       sourceEl.append(left, right);
@@ -743,7 +755,7 @@ async function loadMap() {
     const r = await fetch(ATLAS_URL);
     world = await r.json();
   } catch (e) {
-    els.mapLoading.textContent = 'Не удалось загрузить карту (работает без интернета? используйте поиск или кнопки групп)';
+    els.mapLoading.textContent = t('mapLoadFailed');
     return;
   }
 
@@ -769,8 +781,8 @@ async function loadMap() {
     .attr('data-name', d => d.properties && d.properties.name)
     .on('mouseenter', function(ev, d) {
       const a3 = ISO_NUMERIC_TO_ALPHA3[+d.id];
-      const name = a3 && COUNTRIES[a3] ? COUNTRIES[a3].name : (d.properties && d.properties.name) || '?';
-      const status = a3 ? '' : ' (нет данных)';
+      const name = a3 && COUNTRIES[a3] ? nameFor(COUNTRIES[a3]) : (d.properties && d.properties.name) || '?';
+      const status = a3 ? '' : ' (' + t('noData') + ')';
       els.mapTooltip.textContent = name + status;
       els.mapTooltip.style.display = 'block';
     })
@@ -833,7 +845,7 @@ els.salary.addEventListener('input', e => {
 
 els.salary.addEventListener('blur', e => {
   if (state.income > 0) {
-    e.target.value = numFmt.format(state.income).replace(/,/g, ' ');
+    e.target.value = fmtSalary(state.income);
   }
 });
 
@@ -865,9 +877,30 @@ els.search.addEventListener('keydown', e => {
   }
 });
 
+// ─── language switching ────────────────────────────────────────
+
+function onLangChange() {
+  renderGroups();
+  renderSelected();
+  renderResults();
+  // refresh search results in current dropdown if open
+  if (els.search.value) renderSearchResults(filterSearch(els.search.value));
+  // re-format displayed salary if it was formatted (not focused)
+  if (document.activeElement !== els.salary && state.income > 0) {
+    els.salary.value = fmtSalary(state.income);
+  }
+}
+
+for (const btn of document.querySelectorAll('.lang-btn')) {
+  btn.classList.toggle('active', btn.dataset.lang === LANG);
+  btn.addEventListener('click', () => setLang(btn.dataset.lang));
+}
+
 // ─── boot ──────────────────────────────────────────────────────
 
+applyI18n();
 state.income = parseSalary(els.salary.value);
+if (state.income > 0) els.salary.value = fmtSalary(state.income);
 renderGroups();
 renderSelected();
 renderResults();
